@@ -1,4 +1,4 @@
-import  User  from '../models/index.js';
+import User  from '../models/index.js';
 import { signToken, AuthenticationError } from '../services/auth.js';
 
 // define types for arguments
@@ -35,7 +35,7 @@ const resolvers = {
     me: async (_parent: any, _args: any, context: any) => {
       // If the user is authenticated, find and return the user's information along with their saved books
       if (context.user) {
-        return User.findOne({ _id: context.user._id }).populate('savedBooks');
+        return User.findById({ _id: context.user._id }).populate('savedBooks');
       }
       // If the user is not authenticated, throw an AuthenticationError
       throw new AuthenticationError('Could not authenticate user.');
@@ -44,16 +44,24 @@ const resolvers = {
     user: async (_parent: any, { username }: any) => {
       return User.findOne({ username }).populate('savedBooks');
     },
+  },
     Mutation: {
 // Mutations to add: login, addUser, saveBook, removeBook
-      addUser: async (_parent: any, { input }: addUserArgs) => {
+      addUser: async (_parent: any,  input : addUserArgs) => {
+        console.log("Input: ", input);
+        try{
         const user = await User.create(input);
+        console.log("User_id type: ", typeof user._id, user._id);
         const token = signToken(user.username, user.password, user._id);
         return { token, user };
-      },
-    },
+        } catch (err) {
+          console.log("Error creating user:", err);
+          throw new Error("error creating user")
+      }},
+    
     login: async (_parent: any, { email, password }: loginArgs) => {
       // Find a user with the provided email
+      try{
       const user = await User.findOne({ email });
     
       // If no user is found, throw an AuthenticationError
@@ -70,11 +78,15 @@ const resolvers = {
       }
     
       // Sign a token with the user's information
-      const token = signToken(user.username, user.email, user._id);
-    
+      const token = signToken(user.username, user.password, user._id);
+      console.log("Token: ", token);
       // Return the token and the user
       return { token, user };
-    },
+    } catch (err) {
+      console.log("Error logging in user:", err);
+      throw new Error("error logging in user")
+    }}
+    ,
     saveBook: async (_parent: any, { input }: addBookArgs, context: any) => {
       // If the user is authenticated, add the book to their savedBooks
       if (context.user) {
@@ -101,6 +113,7 @@ const resolvers = {
       // If the user isn't authenticated, throw an AuthenticationError
       throw new AuthenticationError('You need to be logged in!');
     },
-}};
+  }
+};
 
 export default resolvers;
