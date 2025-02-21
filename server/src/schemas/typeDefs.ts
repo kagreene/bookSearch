@@ -1,24 +1,25 @@
-const typeDefs = `
+import { gql } from 'apollo-server-express';
+const typeDefs = gql`
   input BookInput {
     authors: [String]
     description: String
-    bookId: String!
+    bookId: ID!
     image: String
     link: String
     title: String!
   }
   type User {
-    _id: ID
-    username: String
-    email: String
+    _id: ID!
+    username: String!
+    email: String!
     bookCount: Int
     savedBooks: [Book]
   }
     type Book {
-    bookId: ID
+    bookId: ID!
     authors: [String]
     description: String
-    title: String
+    title: String!
     image: String
     link: String
     }
@@ -36,6 +37,7 @@ const typeDefs = `
 
   type Query {
     me: User
+    user(username: String!): User
     }
 
   type Mutation {
@@ -44,7 +46,6 @@ const typeDefs = `
     saveBook(bookData: BookInput!): User
     removeBook(bookId: ID!): User
     }
-  }
   `
   ;
 export default typeDefs;

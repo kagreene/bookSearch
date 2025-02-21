@@ -11,7 +11,7 @@ import Navbar from './components/Navbar';
 
 // Construct main GraphQL API endpoint
 const httpLink = createHttpLink({
-  uri: '/graphql',
+  uri: 'http://localhost:3001/graphql',
 });
 
 // Construct request middleware to attach JWT token to every request as an authorization header
@@ -19,6 +19,7 @@ const authLink = setContext((_, { headers }) => {
   // Get the existing token from localStorage
   const token = localStorage.getItem('id_token');
   // Return the headers to the context so httpLink can read them
+  console.log("Apollo sending token: ", token);
   return {
     headers: {
       ...headers,
