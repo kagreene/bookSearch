@@ -6,6 +6,7 @@ import db from './config/connection.js';
 // import routes from './routes/index.js';
 import { typeDefs, resolvers } from './schemas/index.js';
 import { authenticateToken } from './services/auth.js';
+import { fileURLToPath } from 'url';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -27,6 +28,9 @@ const startApolloServer = async () => {
 
     // if we're in production, serve client/dist as static assets
     if (process.env.NODE_ENV === 'production') {
+      const _filename = fileURLToPath(import.meta.url);
+      const __dirname = path.dirname(_filename);
+
       app.use(express.static(path.join(__dirname, '../client/dist')));
   
       app.get('*', (_req, res) => {
